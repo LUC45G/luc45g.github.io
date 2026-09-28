@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#080d18" />
   <title>Lucas González</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -32,7 +33,19 @@
 
     /* ─── Reset & Base ──────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; color-scheme: dark; }
+
+    .skip-link {
+      position: fixed; left: 1rem; top: 1rem; z-index: 1000;
+      transform: translateY(-200%); padding: 0.6rem 0.9rem;
+      background: var(--accent); color: var(--bg); font-weight: 500;
+    }
+    .skip-link:focus-visible { transform: translateY(0); }
+
+    :where(a, button, [role="tab"]):focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
 
     body {
       background: var(--bg);
@@ -73,7 +86,7 @@
       font-family: var(--ff-mono); font-size: 0.7rem;
       letter-spacing: 0.1em; padding: 0.25rem 0.75rem;
       border-radius: 1.5rem; color: var(--ink-muted);
-      transition: all var(--transition);
+      transition: background-color var(--transition), color var(--transition);
     }
 
     .lang-toggle span.active { background: var(--accent); color: var(--bg); font-weight: 500; }
@@ -170,11 +183,12 @@
       padding: 0.5rem 1.25rem;
       background: transparent; border: none;
       color: var(--ink-muted); cursor: pointer;
-      transition: all var(--transition);
+      transition: background-color var(--transition), color var(--transition);
     }
 
     .tab-btn + .tab-btn { border-left: 1px solid var(--border); }
     .tab-btn.active { background: var(--bg3); color: var(--accent); }
+    .tab-btn:hover:not(.active) { color: var(--ink); background: var(--bg2); }
 
     /* Tab panels — positioned for crossfade */
     .tab-panels { position: relative; }
@@ -450,7 +464,7 @@
     .cert-modal-close:hover { color: var(--ink); border-color: var(--ink-muted); }
 
     .cert-modal-body {
-      flex: 1; overflow: auto; min-height: 0;
+      flex: 1; overflow: auto; overscroll-behavior: contain; min-height: 0;
       background: var(--bg);
     }
 
@@ -491,6 +505,15 @@
       .contact-grid { grid-template-columns: 1fr; }
     }
 
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
     /* ─── Page Fade-in ──────────────────────────────────────── */
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(16px); }
@@ -510,16 +533,17 @@
   </style>
 </head>
 <body class="en">
+  <a class="skip-link" href="#main-content">Skip to main content</a>
 
   <!-- ─── Top Bar ─────────────────────────────────────────── -->
   <div class="topbar">
-    <div class="lang-toggle" id="langToggle" role="button" aria-label="Toggle language" tabindex="0">
+    <button class="lang-toggle" id="langToggle" type="button" aria-label="Change language">
       <span id="lang-en" class="active">EN</span>
       <span id="lang-es">ES</span>
-    </div>
+    </button>
   </div>
 
-  <div class="container">
+  <main class="container" id="main-content">
 
     <!-- ════════════════════════════════════════════════════════
          1. PERSONAL DATA
@@ -566,11 +590,9 @@
         <div class="section-line"></div>
       </div>
 
-      <div class="tab-bar">
-        <button class="tab-btn active" data-tab="work" data-lang="en">Work</button>
-        <button class="tab-btn active" data-tab="work" data-lang="es">Laboral</button>
-        <button class="tab-btn" data-tab="academic" data-lang="en">Academic</button>
-        <button class="tab-btn" data-tab="academic" data-lang="es">Académica</button>
+      <div class="tab-bar" role="tablist" aria-label="Experience type">
+        <button class="tab-btn active" id="tab-work" type="button" role="tab" aria-selected="true" aria-controls="panel-work" data-tab="work"><span data-lang="en">Work</span><span data-lang="es">Laboral</span></button>
+        <button class="tab-btn" id="tab-academic" type="button" role="tab" aria-selected="false" aria-controls="panel-academic" data-tab="academic"><span data-lang="en">Academic</span><span data-lang="es">Académica</span></button>
       </div>
 
       <div class="tab-panels">
@@ -724,7 +746,7 @@
         <!-- Card 2 — col 2 ✏️ -->
         <a class="contact-card" href="https://github.com/luc45g" target="_blank" rel="noopener">
           <div class="contact-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
             </svg>
           </div>
@@ -737,7 +759,7 @@
         <!-- Card 3 — col 2 (shifted) ✏️ -->
         <a class="contact-card" href="https://gitlab.com/gitlucas" target="_blank" rel="noopener">
           <div class="contact-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
               <path d="M22.65 14.39L12 22.13 1.35 14.39a.84.84 0 01-.3-.94l1.22-3.78 2.44-7.51A.42.42 0 014.82 2a.43.43 0 01.58 0 .42.42 0 01.11.18l2.44 7.49h8.1l2.44-7.49a.42.42 0 01.11-.18.43.43 0 01.58 0 .42.42 0 01.11.18l2.44 7.51L23 13.45a.84.84 0 01-.35.94z"/>
             </svg>
           </div>
@@ -759,7 +781,7 @@
         <!-- Card 5 — col 1 ✏️ -->
         <a class="contact-card" href="https://linkedin.com/in/lucas-gabriel-gonzalez" target="_blank" rel="noopener">
           <div class="contact-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
               <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
             </svg>
           </div>
@@ -864,7 +886,7 @@
       </div>
     </section>
 
-  </div><!-- /container -->
+  </main><!-- /container -->
 
   <footer>
     <p data-lang="en"> 2026 - lvcasgonzalez </p>
@@ -872,7 +894,7 @@
   </footer>
 
   <!-- ─── Certificate Modal ────────────────────────────────── -->
-  <div class="cert-modal-backdrop" id="certBackdrop" role="dialog" aria-modal="true" aria-label="Certificate viewer">
+  <div class="cert-modal-backdrop" id="certBackdrop" role="dialog" aria-modal="true" aria-labelledby="certModalTitle" aria-hidden="true">
     <div class="cert-modal" id="certModal">
       <div class="cert-modal-header">
         <div>
@@ -946,13 +968,6 @@
       setLang(currentLang === 'en' ? 'es' : 'en');
     });
 
-    langToggle.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        setLang(currentLang === 'en' ? 'es' : 'en');
-      }
-    });
-
     /* ══════════════════════════════════════════════════════════
        EXPERIENCE TABS WITH FADE
     ══════════════════════════════════════════════════════════ */
@@ -961,8 +976,16 @@
       work:     document.getElementById('panel-work'),
       academic: document.getElementById('panel-academic'),
     };
-    let activeTab  = 'work';
+    const initialTab = location.hash === '#experience-academic' ? 'academic' : 'work';
+    let activeTab  = initialTab;
     let tabBusy    = false;
+
+    Object.entries(panels).forEach(([name, panel]) => panel.classList.toggle('active', name === activeTab));
+    tabBtns.forEach(btn => {
+      const selected = btn.dataset.tab === activeTab;
+      btn.classList.toggle('active', selected);
+      btn.setAttribute('aria-selected', String(selected));
+    });
 
     tabBtns.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -992,8 +1015,12 @@
         }, { once: true });
 
         // Update button states
-        tabBtns.forEach(b => b.classList.remove('active'));
-        tabBtns.forEach(b => { if (b.dataset.tab === target) b.classList.add('active'); });
+        tabBtns.forEach(b => {
+          const selected = b.dataset.tab === target;
+          b.classList.toggle('active', selected);
+          b.setAttribute('aria-selected', String(selected));
+        });
+        history.replaceState(null, '', target === 'academic' ? '#experience-academic' : '#experience');
       });
     });
 
@@ -1008,7 +1035,10 @@
     const modalExt   = document.getElementById('certModalExternal');
     const modalExt2  = document.getElementById('certModalExternal2');
 
+    let lastFocusedElement = null;
+
     function openModal(url, titleEn, titleEs, org) {
+      lastFocusedElement = document.activeElement;
       const title = currentLang === 'es' && titleEs ? titleEs : titleEn;
       modalTitle.textContent = title || '';
       modalOrg.textContent   = org || '';
@@ -1023,6 +1053,8 @@
       if (isImage) {
         const img = document.createElement('img');
         img.src = url;
+        img.width = 820;
+        img.height = 600;
         img.alt = title || 'Certificate';
         modalBody.appendChild(img);
       } else {
@@ -1035,13 +1067,16 @@
       }
 
       backdrop.classList.add('open');
+      backdrop.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
       modalClose.focus();
     }
 
     function closeModal() {
       backdrop.classList.remove('open');
+      backdrop.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = '';
+      if (lastFocusedElement) lastFocusedElement.focus();
       setTimeout(() => { modalBody.innerHTML = ''; }, 300);
     }
 

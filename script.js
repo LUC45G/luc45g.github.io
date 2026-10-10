@@ -12,7 +12,7 @@ let langAnimations = [];
 function getVisibleLangEls() {
   // All currently visible [data-lang] elements
   return [...document.querySelectorAll('[data-lang]')].filter(el => {
-    return el.getClientRects().length > 0;
+    return el.getClientRects().length > 0 && getComputedStyle(el).visibility !== 'hidden';
   });
 }
 
@@ -71,6 +71,44 @@ const panels   = {
 };
 const initialTab = location.hash === '#experience-academic' ? 'academic' : 'work';
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+/* Additional games: manual, looping navigation with one accessible card. */
+const gameCarousel = document.querySelector('.game-carousel');
+if (gameCarousel) {
+  const slides = [...gameCarousel.querySelectorAll('.carousel-slide')];
+  const previous = gameCarousel.querySelector('.carousel-prev');
+  const next = gameCarousel.querySelector('.carousel-next');
+  const status = gameCarousel.querySelector('.carousel-status');
+  let gameIndex = 0;
+  const showGame = (index, direction = 1) => {
+    gameIndex = (index + slides.length) % slides.length;
+    gameCarousel.style.setProperty('--carousel-direction', direction > 0 ? '1rem' : '-1rem');
+    slides.forEach((slide, i) => {
+      const active = i === gameIndex;
+      if (!active && slide.contains(document.activeElement)) (direction > 0 ? next : previous).focus();
+      slide.inert = !active;
+      slide.setAttribute('aria-hidden', String(!active));
+      slide.classList.toggle('is-active', active);
+    });
+    status.querySelector('.carousel-position').textContent = `${gameIndex + 1} / ${slides.length}`;
+    status.querySelector('.carousel-current-title').textContent = slides[gameIndex].querySelector('.project-title').textContent;
+  };
+  if (slides.length > 1) {
+    gameCarousel.classList.add('is-enhanced');
+    previous.hidden = next.hidden = status.hidden = false;
+    previous.addEventListener('click', () => showGame(gameIndex - 1, -1));
+    next.addEventListener('click', () => showGame(gameIndex + 1, 1));
+    gameCarousel.addEventListener('keydown', event => {
+      if (event.target.closest('a') || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      event.preventDefault();
+      if (event.key === 'ArrowLeft') showGame(gameIndex - 1, -1);
+      else if (event.key === 'ArrowRight') showGame(gameIndex + 1, 1);
+      else if (event.key === 'Home') showGame(0, -1);
+      else showGame(slides.length - 1, 1);
+    });
+    showGame(0);
+  }
+}
 
 /* Keep the identity in the sticky bar once the original title is above it. */
 const topbar = document.querySelector('.topbar');

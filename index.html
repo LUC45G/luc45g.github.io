@@ -14,10 +14,12 @@
   <script src="./script.js" defer></script>
 </head>
 <body class="en">
+  <div class="star-field" aria-hidden="true"></div>
   <a class="skip-link" href="#main-content"><span data-lang="en">Skip to main content</span><span data-lang="es">Saltar al contenido principal</span></a>
 
   <!-- ─── Top Bar ─────────────────────────────────────────── -->
   <div class="topbar">
+    <span class="topbar-name" aria-hidden="true"></span>
     <button class="lang-toggle" id="langToggle" type="button" aria-label="Switch to Spanish" aria-pressed="false">
       <span id="lang-en" class="active" aria-hidden="true">EN</span>
       <span id="lang-es" aria-hidden="true">ES</span>
@@ -32,7 +34,7 @@
     <section class="hero" id="about">
 
       <!-- ✏️ Replace with your name -->
-      <h1 class="hero-name">Lucas González</h1>
+      <h1 class="hero-name" tabindex="-1">Lucas González</h1>
 
       <!-- ✏️ Replace with your title/role -->
       <p class="hero-title" data-lang="en">IT Specialist <span aria-hidden="true">✶</span> Software Developer</p>
@@ -344,6 +346,14 @@
     <p data-lang="en"> 2026 - lvcasgonzalez </p>
     <p data-lang="es"> 2026 - lvcasgonzalez </p>
   </footer>
+
+  <button class="back-to-top" type="button" disabled>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 19V5M5 12l7-7 7 7" />
+    </svg>
+    <span class="sr-only" data-lang="en">Back to top</span>
+    <span class="sr-only" data-lang="es">Volver arriba</span>
+  </button>
 
   <!-- ─── Certificate Modal ────────────────────────────────── -->
   <dialog class="cert-modal-backdrop" id="certBackdrop" aria-labelledby="certModalTitle">

@@ -71,6 +71,77 @@ const panels   = {
 };
 const initialTab = location.hash === '#experience-academic' ? 'academic' : 'work';
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+/* Keep the identity in the sticky bar once the original title is above it. */
+const topbar = document.querySelector('.topbar');
+const heroName = document.querySelector('.hero-name');
+const topbarName = document.querySelector('.topbar-name');
+if (topbar && heroName && topbarName) {
+  topbarName.textContent = heroName.textContent;
+  let nameFrame = null;
+  const updateTopbarName = () => {
+    nameFrame = null;
+    topbar.classList.toggle('has-name', heroName.getBoundingClientRect().bottom <= topbar.getBoundingClientRect().bottom);
+  };
+  const scheduleTopbarName = () => {
+    if (nameFrame === null) nameFrame = requestAnimationFrame(updateTopbarName);
+  };
+  window.addEventListener('scroll', scheduleTopbarName, { passive: true });
+  window.addEventListener('resize', scheduleTopbarName);
+  window.addEventListener('pageshow', scheduleTopbarName);
+  const nameResizeObserver = new ResizeObserver(scheduleTopbarName);
+  nameResizeObserver.observe(heroName);
+  nameResizeObserver.observe(topbar);
+  updateTopbarName();
+}
+
+/* Offer a return to the beginning after scrolling one viewport. */
+const backToTop = document.querySelector('.back-to-top');
+if (backToTop) {
+  let backToTopFrame = null;
+  const updateBackToTop = () => {
+    backToTopFrame = null;
+    const visible = window.scrollY >= window.innerHeight;
+    if (!visible && document.activeElement === backToTop) heroName?.focus({ preventScroll: true });
+    backToTop.classList.toggle('is-visible', visible);
+    backToTop.disabled = !visible;
+  };
+  const scheduleBackToTop = () => {
+    if (backToTopFrame === null) backToTopFrame = requestAnimationFrame(updateBackToTop);
+  };
+  window.addEventListener('scroll', scheduleBackToTop, { passive: true });
+  window.addEventListener('resize', scheduleBackToTop);
+  window.addEventListener('pageshow', scheduleBackToTop);
+  backToTop.addEventListener('click', () => {
+    heroName?.focus({ preventScroll: true });
+    window.scrollTo({ top: 0, behavior: reducedMotion.matches ? 'instant' : 'smooth' });
+  });
+  updateBackToTop();
+}
+
+/* Scroll-driven stars: no idle animation, and at most 96px of travel. */
+const starField = document.querySelector('.star-field');
+if (starField) {
+  let starFrame = null;
+  const updateStars = () => {
+    starFrame = null;
+    const offset = reducedMotion.matches ? 0 : -96 * (1 - Math.exp(-Math.max(0, window.scrollY) / 1200));
+    starField.style.setProperty('--stars-offset', `${offset.toFixed(2)}px`);
+  };
+  const scheduleStars = () => {
+    if (!reducedMotion.matches && starFrame === null) {
+      starFrame = requestAnimationFrame(updateStars);
+    }
+  };
+  window.addEventListener('scroll', scheduleStars, { passive: true });
+  window.addEventListener('pageshow', scheduleStars);
+  reducedMotion.addEventListener('change', () => {
+    if (starFrame !== null) cancelAnimationFrame(starFrame);
+    updateStars();
+  });
+  updateStars();
+}
+
 let activeTab = null;
 let tabTransition = null;
 let tabAnimation = null;

@@ -133,6 +133,25 @@ if (topbar && heroName && topbarName) {
   updateTopbarName();
 }
 
+/* A small star marks reading progress along the bottom edge of the top bar. */
+const scrollProgress = document.querySelector('.topbar .scroll-progress');
+if (scrollProgress) {
+  let progressFrame = null;
+  const updateScrollProgress = () => {
+    progressFrame = null;
+    const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = scrollableHeight > 0 ? Math.min(1, Math.max(0, window.scrollY / scrollableHeight)) : 0;
+    scrollProgress.style.setProperty('--scroll-progress', progress.toFixed(4));
+  };
+  const scheduleScrollProgress = () => {
+    if (progressFrame === null) progressFrame = requestAnimationFrame(updateScrollProgress);
+  };
+  window.addEventListener('scroll', scheduleScrollProgress, { passive: true });
+  window.addEventListener('resize', scheduleScrollProgress);
+  window.addEventListener('pageshow', scheduleScrollProgress);
+  updateScrollProgress();
+}
+
 /* Offer a return to the beginning after scrolling one viewport. */
 const backToTop = document.querySelector('.back-to-top');
 if (backToTop) {

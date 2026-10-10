@@ -157,14 +157,20 @@ if (backToTop) {
   updateBackToTop();
 }
 
-/* Scroll-driven stars: no idle animation, and at most 96px of travel. */
+/* Two scroll-driven depths, sharing one frame with no idle animation. */
 const starField = document.querySelector('.star-field');
+const midStarField = document.querySelector('.star-field--mid');
 if (starField) {
   let starFrame = null;
   const updateStars = () => {
     starFrame = null;
     const offset = reducedMotion.matches ? 0 : -96 * (1 - Math.exp(-Math.max(0, window.scrollY) / 1200));
     starField.style.setProperty('--stars-offset', `${offset.toFixed(2)}px`);
+    if (midStarField) {
+      // Limit travel on short screens so the repeated sky always covers them.
+      const midTravel = Math.min(240, window.innerHeight * 0.6);
+      midStarField.style.setProperty('--stars-offset', `${(offset * midTravel / 96).toFixed(2)}px`);
+    }
   };
   const scheduleStars = () => {
     if (!reducedMotion.matches && starFrame === null) {
@@ -172,6 +178,7 @@ if (starField) {
     }
   };
   window.addEventListener('scroll', scheduleStars, { passive: true });
+  window.addEventListener('resize', scheduleStars);
   window.addEventListener('pageshow', scheduleStars);
   reducedMotion.addEventListener('change', () => {
     if (starFrame !== null) cancelAnimationFrame(starFrame);
